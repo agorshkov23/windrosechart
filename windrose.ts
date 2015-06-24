@@ -1,4 +1,5 @@
 ﻿interface IWindRoseData {
+    titles: string[];
     colors: string[];
     series?: number[][];
 }
@@ -7,6 +8,7 @@ interface IWindRoseOptions {
     id: string;
     data: IWindRoseData;
     padding?: number;
+    font?: string;
 }
 
 class WindRose {
@@ -17,7 +19,6 @@ class WindRose {
 
         //window.onresize = function (e) {
         this.element.onresize = function (e) {
-            debugger;
             this.resize();
         }
 
@@ -25,6 +26,7 @@ class WindRose {
             this.data = options.data;
 
         this.padding = options.padding || 10;
+        this.font = options.font || "normal 14px arial";
 
         this.canvas = document.createElement("canvas");
         this.element.appendChild(this.canvas);
@@ -81,9 +83,32 @@ class WindRose {
             this.context.lineTo(x, y);
             this.context.stroke();
 
+            //  заголовки шкалы
+            var title = this.data.titles[i];
+
+            this.context.save();
+
+            //  в зависимости от величины угла смещаем текст вправо или влево
+            //  если угол -п/2, то выравнивание по центру
+            if (Math.abs(angle) === Math.PI / 2)
+                this.context.textAlign = "center";
+            else if (Math.abs(angle) < Math.PI / 2)
+                this.context.textAlign = "left";
+            else
+                this.context.textAlign = "right";
+
+            this.context.font = this.font;
+            //  выравнивание по вертикали: по центру
+            this.context.textBaseline = "middle";
+            this.context.fillText(title, x, y);
+
+            this.context.restore();
+
             angle += dAngle;
         }
+
         
+
         this.context.stroke();
 
         //  рисование лучей
@@ -144,5 +169,6 @@ class WindRose {
     private data: IWindRoseData;
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
-    padding: number;
+    private padding: number;
+    private font: string;
 }

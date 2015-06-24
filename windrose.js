@@ -5,12 +5,12 @@ var WindRose = (function () {
             throw "Нет такого элемента";
         //window.onresize = function (e) {
         this.element.onresize = function (e) {
-            debugger;
             this.resize();
         };
         if (options.data)
             this.data = options.data;
         this.padding = options.padding || 10;
+        this.font = options.font || "normal 14px arial";
         this.canvas = document.createElement("canvas");
         this.element.appendChild(this.canvas);
         this.canvas.width = this.element.clientWidth;
@@ -49,6 +49,22 @@ var WindRose = (function () {
             this.context.moveTo(center.x, center.y);
             this.context.lineTo(x, y);
             this.context.stroke();
+            //  заголовки шкалы
+            var title = this.data.titles[i];
+            this.context.save();
+            //  в зависимости от величины угла смещаем текст вправо или влево
+            //  если угол -п/2, то выравнивание по центру
+            if (Math.abs(angle) === Math.PI / 2)
+                this.context.textAlign = "center";
+            else if (Math.abs(angle) < Math.PI / 2)
+                this.context.textAlign = "left";
+            else
+                this.context.textAlign = "right";
+            this.context.font = this.font;
+            //  выравнивание по вертикали: по центру
+            this.context.textBaseline = "middle";
+            this.context.fillText(title, x, y);
+            this.context.restore();
             angle += dAngle;
         }
         this.context.stroke();
